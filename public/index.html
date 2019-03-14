@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>FireBase One To One Chat</title>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/png" href="/icon.png" />
+
+    <!--Meta Tags Stats below:-->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="FireBase One To One Chat With Notifications." />
+    <meta property="og:description" content="Firebase one to one chat with notifications a complete chatting messenger with firebase made with love by Kashan Haider student of SMIT Karachi,Pakistan. - FireBase One To One Chat Using JavaScript."
+    />
+    <meta property="og:image" content="https://one2onechat.tk/favicon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Firebase one to one chat with notifications a complete chatting messenger with firebase made with love by Kashan Haider student of SMIT Karachi,Pakistan. - FireBase One To One Chat Using JavaScript.">
+
+    <!--Meta Tags Ends Above-->
+
+    <!--Scripts Needed TO Load First..!-->
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+    <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase-app.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+    <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase-messaging.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/5.0.4/firebase-functions.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/4.13.0/firebase.js"></script>
+    <script src="js/firebaseintialize.js"></script>
+    <script src="js/idle.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/time.js"></script>
+    <script src="js/shownotifications.js"></script>
+    <script src="js/userinfo.js"></script>
+    <script src="js/blockedusers.js"></script>
+
+
+    <!--JQUERY CONFIRM-->
+
+    <!--JQUERY CONFIRM ENDS-->
+
+
+
+    <!--Scripts Needed TO Load First..! Ends Above-->
+    <link rel="stylesheet" href="upload/upload.css">
+
+    <link rel="stylesheet" href="css/reset.css">
+    <link rel="stylesheet" href="dropdown/ripples.css">
+    <link rel='stylesheet prefetch' href='https://maxcdn.bootstrapcdn.com/font-awesome/4.4.0/css/font-awesome.min.css'>
+
+    <link rel="stylesheet" href="css/style.css">
+
+
+    <link rel="stylesheet" href="css/loading.css">
+
+    <script type="text/javascript" src="https://l2.io/ip.js?var=userip"></script>
+
+
+    <!--BOOTSTRAP-->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="css/mdbs.css">
+
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
+
+
+
+
+    <!--animation-->
+    <link rel="stylesheet" href="css/animate.css">
+
+    <link rel="stylesheet" href="css/hamburger.css">
+    <!--Animation ends-->
+    <!--bootstrap
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+    -->
+
+    <link rel="stylesheet" href="dropdown/dropdown.css">
+
+
+
+
+
+    <script>
+
+
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function () {
+                navigator.serviceWorker.register('sw.js').then(function (registration) {
+                    // Registration was successful
+
+                    firebase.messaging().useServiceWorker(registration);
+
+
+                    firebase.auth().onAuthStateChanged(function (user) {
+                        if (user) {
+
+                            function saveMessagingDeviceToken() {
+
+                                firebase.messaging().getToken().then(function (currentToken) {
+                                    if (currentToken) {
+                                        console.log('Got FCM device token:', currentToken);
+                                        // Saving the Device Token to the datastore.
+                                        firebase.database().ref('/fcmTokens').child(currentToken)
+                                            .set(firebase.auth().currentUser.uid);
+                                    } else {
+                                        // Need to request permissions to show notifications.
+                                        requestforpermision()
+                                    }
+                                }).catch(function (error) {
+                                    console.error('Unable to get messaging token.', error);
+                                });
+                            }//Savetoken ends here
+
+
+                            function requestforpermision() {
+                                firebase.messaging().requestPermission().then(function () {
+                                    // Notification permission granted.
+                                    saveMessagingDeviceToken();
+                                }).catch(function (error) {
+                                    console.error('Unable to get permission to notify.', error);
+
+
+                                    shownotif("Permissions Denied!", "Your Notifications Are Disabled, You have not granted notifications permission. Please allow notifications otherwise you will not recieve any notification.", "warning", "5")
+                                });
+
+                            }//Req Permisison ends here
+                            requestforpermision()
+                        }
+                    });
+
+
+
+
+
+
+
+
+
+
+                    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+                }, function (err) {
+                    // registration failed :(
+                    console.log('ServiceWorker registration failed: ', err);
+                });
+            });
+        }
+
+
+    </script>
+
+
+
+
+
+</head>
+
+<body>
+
+    <div class="loading" id="loading">
+        <div class="lds-roller">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+    <!--Loading Finish Abive-->
+
+    <div id="themainbody" style="opacity: 0 !important;" class="contaiiner clearfix animated ">
+
+
+
+        <!-- Btn-->
+
+
+
+
+
+
+
+
+
+        <div class="people-list animated zoomIn listofpeoples" id="people-list">
+            <!--Hamburger Starts-->
+            <div onclick="newhamburger()" id="mysideaerrow" class="myarrowbtn">
+                <div class="menu-link-wrapper">
+                    <div class="menu-link">
+                        <span class="lines"></span>
+                    </div>
+                </div>
+
+            </div>
+            <!--Hamburge Ends-->
+
+
+
+
+
+            <div class="search">
+                <h3>Online Users:</h3>
+            </div>
+            <ul id="insert-users" class="list animated jello">
+                <!--<li class="clearfix">
+          <img class="avatarimg"  src="defaultuser.png" alt="avatar" />
+          <div class="about">
+            <div class="name">TANKER</div>
+            <div class="status"></div>
+          </div>
+        </li>
+        
+        <li class="clearfix">
+          <img class="avatarimg" src="send.png" alt="avatar" />
+          <div class="about">
+            <div class="name">TANKER</div>
+            <div class="status">
+              <i class="fa fa-circle offline"></i> left 1 min(s) ago
+            </div>
+          </div>
+        </li>
+        
+        <li class="clearfix">
+          <img  class="avatarimg" src="send.png" alt="avatar" />
+          <div class="about">
+            <div class="name">TANKER</div>
+            <div class="status">
+              <i class="fa fa-circle online"></i> online
+            </div>
+          </div>
+        </li>
+        
+        <li class="clearfix">
+          <img class="avatarimg" src="send.png" alt="avatar" />
+          <div class="about">
+            <div class="name">TANKER</div>
+            <div class="status">
+              <i class="fa fa-circle online"></i> online
+            </div>
+          </div>
+        </li>
+        
+        <li class="clearfix">
+          <img class="avatarimg" src="send.png" alt="avatar" />
+          <div class="about">
+            <div class="name">TANKER</div>
+            <div class="status">
+              <i class="fa fa-circle online"></i> online
+            </div>
+          </div>
+        </li>
+        
+        <li class="clearfix">
+          <img class="avatarimg" src="send.png" alt="avatar" />
+          <div class="about">
+            <div class="name">TANKER</div>
+            <div class="status">
+              <i class="fa fa-circle offline"></i> left 6 min(s) ago
+            </div>
+          </div>
+        </li>
+        
+        <li class="clearfix">
+          <img class="avatarimg" src="send.png" alt="avatar" />
+          <div class="about">
+            <div class="name">TANKER</div>
+            <div class="status">
+              <i class="fa fa-circle offline"></i> left 5 Min(s) ago
+            </div>
+          </div>
+        </li>-->
+
+
+
+
+            </ul>
+
+            <div class="search">
+                <h3 title="Users From Which You Have Ever Recieved Any Message.">Contacts:</h3>
+            </div>
+            <ul id="contact-list" class="list animated jello">
+
+            </ul>
+        </div>
+
+        <div id="chatbody" class="chat">
+            <div class="chat-header clearfix">
+                <img id="headavtr" class="wow flip animated chatheadimg" src="send.png" alt="avatar" />
+
+                <div class="chat-about">
+                    <div id="nametitle" class="chat-with">{{Reciever Name}}</div>
+                    <div class="chat-num-messages">ONE TO ONE CHAT</div>
+
+                </div>
+
+
+
+
+                <div>
+                    <i data-toggle="collapse" data-target="#settingsbtn" class="material-icons fa fa-cog"></i>
+                    <ul id="settingsbtn" class="collapse">
+
+                        <li onclick="updateprofilebtnfunction();" class="pointer">Update Profile Pic</li>
+                        <li onclick="$('#InviteFriend').modal({backdrop: 'static', keyboard: false})" class="pointer">Invite Your Friends</li>
+                        <li class="pointer">
+                            <a href="ignoredusers.html" target="_blank">Ignored Users List</a>
+                        </li>
+                        <hr style="    margin-top: 1px; margin-bottom: 1px; box-shadow: 0px 0px 4px black;">
+                        <li onclick="firebase.auth().signOut().then(function(){  location.reload()  })" style="background: white;" class="pointer">LOG OUT
+                            <i style="color:red; font-size:25px" class="fa fa-power-off"></i>
+                        </li>
+                    </ul>
+                </div>
+
+
+
+
+                <!-- <span class="dropbutton">        
+        <i  class="fa fa-cog settingear"></i></span>
+        <div class="dropdown-content" id="myDropdown">
+            <a href="javascript:void(0)">Change Profile Pic</a>
+            <a href="javascript:void(0)">Change Name </a>
+            <a href="javascript:void(0)">Un-Ignore All Users</a>
+          </div></div>-->
+
+                <!--Main Settings Drop Down-->
+
+
+                <!--Settinsg Drop Down Ends Above-->
+
+
+            </div>
+            <!-- end chat-header -->
+
+
+
+
+
+
+
+
+
+
+            <div id="chat-history" class="chat-history">
+                <ul id="insert-chat">
+
+
+                </ul>
+
+
+
+            </div>
+            <!-- end chat-history -->
+            <br>
+            <br>
+            <br>
+
+
+
+        </div>
+        <!-- end chat -->
+
+        <textarea class="textareamsg" style="background:white" name="message-to-send" id="message-to-send" placeholder="Type your message"
+            rows="3"></textarea>
+        <div class="fileuploadicon">
+
+            <i title="upload images or other files" onclick="uploadbtnfunction(); " id="btn-upload" style="display: block;" class="btn-upload fa fa-file-image-o fontsizeforicons"></i>
+        </div>
+        <img id="sendbtnimage" class="sendbtn" src="send.png">
+        <!-- end text area -message -->
+    </div>
+    <!-- end container -->
+    <!--Modals Below-->
+    <!-- Large modal -->
+    <!-- Trigger the modal with a button -->
+
+
+    <!-- Modal -->
+    <!--Modal: Login / Register Form-->
+    <div class="modal fade" id="modalLRForm" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog cascading-modal" role="document">
+            <!--Content-->
+            <div class="modal-content">
+
+                <!--Modal cascading tabs-->
+                <div class="modal-c-tabs">
+
+                    <!-- Nav tabs -->
+                    <ul class="nav nav-tabs tabs-2 light-blue darken-3" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" data-toggle="tab" href="#panel7" role="tab">
+                                <i class="fa fa-user mr-1"></i> Login</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" data-toggle="tab" href="#panel8" role="tab">
+                                <i class="fa fa-user-plus mr-1"></i> Register</a>
+                        </li>
+                    </ul>
+
+                    <!-- Tab panels -->
+                    <div class="tab-content">
+                        <!--Panel 7-->
+                        <div class="tab-pane fade in show active" id="panel7" role="tabpanel">
+
+                            <!--Body-->
+                            <div class="modal-body mb-1">
+                                <div class="md-form form-sm mb-5">
+                                    <i class="fa fa-envelope prefix"></i>
+                                    <input type="email" placeholder="Your Email" id="modalLRInput10" class="form-control form-control-sm validate">
+
+                                </div>
+
+                                <div class="md-form form-sm mb-4">
+                                    <i class="fa fa-lock prefix"></i>
+                                    <input type="password" id="modalLRInput11" placeholder="Your Password" class="form-control form-control-sm validate">
+
+                                </div>
+                                <div class="text-center mt-2">
+                                    <button id="btn-login" class="btn btn-info">Log in
+                                        <i class="fa fa-sign-in ml-1"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <!--Footer-->
+                            <div class="modal-footer">
+                                <div class="options text-center text-md-right mt-1">
+
+                                    <p>Forgot
+                                        <a href="#" class="blue-text">Password?</a>
+                                    </p>
+                                </div>
+
+                            </div>
+
+                        </div>
+                        <!--/.Panel 7-->
+
+                        <!--Panel 8-->
+                        <div class="tab-pane fade" id="panel8" role="tabpanel">
+
+                            <!--Body-->
+                            <div class="modal-body">
+                                <div class="md-form form-sm mb-5">
+                                    <i class="fa fa-user prefix"></i>
+                                    <input type="text" id="name" placeholder="First Name" class="form-control form-control-sm validate">
+
+                                </div>
+                                <div class="md-form form-sm mb-5">
+                                    <i class="fa fa-envelope prefix"></i>
+                                    <input type="email" placeholder="Your Email" id="modalLRInput12" class="form-control form-control-sm validate">
+                                </div>
+
+                                <div class="md-form form-sm mb-5">
+                                    <i class="fa fa-lock prefix"></i>
+                                    <input type="password" id="modalLRInput13" placeholder="Your Password" class="form-control form-control-sm validate">
+
+                                </div>
+
+                                <div class="md-form form-sm mb-4">
+                                    <i class="fa fa-lock prefix"></i>
+                                    <input type="password" id="modalLRInput14" placeholder="Repeat Password" class="form-control form-control-sm validate">
+
+                                </div>
+
+                                <div class="text-center form-sm mt-2">
+                                    <button id="signup-btn" class="btn btn-info">Sign up
+                                        <i class="fa fa-sign-in ml-1"></i>
+                                    </button>
+                                </div>
+
+                            </div>
+                            <!--Footer-->
+                            <div class="modal-footer">
+                                <div class="options text-right">
+
+                                </div>
+
+                            </div>
+                        </div>
+                        <!--/.Panel 8-->
+                    </div>
+
+                </div>
+            </div>
+            <!--/.Content-->
+        </div>
+    </div>
+    <!--Modal: Login / Register Form-->
+
+
+
+    <!--1 Modal ends above-->
+
+
+
+
+    <!--Modal 2 Deleted Above-->
+
+    <!--Modal 3 Starts Below-->
+    <div class="modal fade" id="modalmoreinfo" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header text-center">
+                    <h4 class="modal-title w-100 font-weight-bold">Few More Information Required.</h4>
+
+                </div>
+                <div class="modal-body mx-3">
+                    <div class="md-form mb-5">
+                        <i class="fa fa-user prefix grey-text"></i>
+                        <input type="text" id="UserFirstName" placeholder="Your First Name" class="form-control validate">
+                    </div>
+
+                    <div class="md-form mb-5">
+                        <i class="fa fa-user prefix grey-text"></i>
+                        <input type="text" id="UserLastName" placeholder="Your Last Name" class="form-control validate">
+                    </div>
+
+
+                    <p class="text-danger">Make sure to fill correct information, The name cannot be changed later.</p>
+                </div>
+
+                <div class="modal-footer d-flex justify-content-center">
+                    <button id="senddetails-btn" class="btn btn-unique">Submit
+                        <i class="fa fa-paper-plane-o ml-1"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!--Modal 3 Ends Here-->
+
+
+
+    <!--Modal: UserInformation -->
+    <div class="modal fade" id="userinfomodal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog cascading-modal modal-avatar modal-lg" role="document">
+            <!--Content-->
+            <div class="modal-content">
+
+                <!--Header-->
+                <div class="modal-header">
+                    <img id="userdetailsimg" style="width:130px;  height:130px" src="defaultuser.png" alt="avatar" class="rounded-circle img-responsive">
+                </div>
+                <!--Body-->
+                <div class="modal-body text-center mb-1">
+
+                    <h5 id="userdetailsname" class="name mt-1 mb-2">{{Name}}</h5>
+                    <hr>
+                    <div class="md-form ml-0 mr-0">
+
+                        <div style="display: inline-block" class="col-md-3">
+                            <p style="font-weight: 800; font-size: 14px">User Information:- </p>
+                            <div>
+                                <p>
+                                    <text class="bold">
+                                        <i style="font-size: 20px; color:#ffc43b" class="fa fa-envelope"></i>
+                                    </text> :
+                                    <text style="font-size: 14px; font-weight: 700" id="userdetailsEmail"></text>
+                                </p>
+                                <p>
+                                    <text class="bold">
+                                        <i style="color:#4267b2;font-size: 20px;" class="fa fa-facebook-square"></i>
+                                    </text> :
+                                    <text id="userdetailsFBLink"></text>
+                                </p>
+                                <p>
+                                    <text class="bold" title="verified phone number of user">
+                                        <i style="font-size: 20px; color:#4CAF50;" class="	fa fa-phone-square"></i>
+                                    </text> :
+                                    <text id="userdetailsPhone"></text>
+                                </p>
+
+                            </div>
+                        </div>
+                        <div style="display: inline-block" class="col-md-3">
+                            <p style="font-weight: 800; font-size: 14px">Last Login With Details:- </p>
+
+                            <div>
+                                <p>
+                                    <text title="Internet Service Provider, From Which User Logged In Last Time." class="bold">
+                                        <i style="font: size 20px;color:#228ae6" class="fa fa-sitemap"></i>
+                                    </text> :
+                                    <text id="userdetailsLisp"></text>
+                                </p>
+                                <p>
+                                    <text title="Area Of User from which this user logged in last time" class="bold">
+                                        <i style="color:red; font-size: 20px;" class="fa fa-map-marker"></i>
+                                    </text> :
+                                    <text id="userdetailsLarea"></text>
+                                </p>
+
+
+                            </div>
+
+                        </div>
+
+
+                        <div style="display: inline-block" class="col-md-3">
+                            <p style="font-weight: 800; font-size: 14px">Registered With Details:- </p>
+
+                            <div>
+                                <p>
+                                    <text title="Internet Service Provider, From Which User Registered Very First Time." class="bold">
+                                        <i style="font: size 20px; color:#228ae6" class="fa fa-sitemap"></i>
+                                    </text> :
+                                    <text id="userdetailsRisp"></text>
+                                </p>
+                                <p>
+                                    <text title="The Area Of User From Which User Registered His Account" class="bold">
+                                        <i style="color:red; font-size: 20px;" class="fa fa-map-marker"></i>
+                                    </text> :
+                                    <text id="userdetailsRarea"></text>
+                                </p>
+
+
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <hr>
+                    <div class="text-center mt-4">
+
+
+                        <button id="userdetailsverify" class="btn btn-info mt-1">ASK TO RE-VERIFY
+                            <i style="color:red" class="fa fa-check ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+            <!--/.Content-->
+
+        </div>
+    </div>
+    <!--Modal: UserInformation-->
+
+
+    <!--Modal  No Admin Rights-->
+
+    <div class="modal fade" id="adminrights" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog cascading-modal modal-avatar modal-sm" role="document">
+            <!--Content-->
+            <div class="modal-content">
+
+                <!--Header-->
+                <div class="modal-header">
+                    <img src="stop.png" alt="avatar" class="rounded-circle img-responsive">
+                </div>
+                <!--Body-->
+                <div class="modal-body text-center mb-1">
+
+                    <h5 class="mt-1 mb-2">No Admin Rights.</h5>
+
+                    <div class="md-form ml-0 mr-0">
+                        <hr>
+                        <p style="color:red;">
+                            <b style="font-weight: 800">Dear User</b>,
+                            <br> This action requires admin rights. You dont have admin rights,
+                            <br> The action could'nt be performed </p>
+                        <hr>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button id="" onclick='$("#adminrights").modal("hide");' class="btn btn-cyan mt-1">OK</button>
+                    </div>
+                </div>
+
+            </div>
+            <!--/.Content-->
+
+        </div>
+    </div>
+    <!--Modal No Admin Rights ENds Above-->
+
+
+
+    <!--Blocked User-->
+
+
+    <div class="modal fade" id="blockeduser" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog cascading-modal modal-avatar modal-sm" role="document">
+            <!--Content-->
+            <div class="modal-content">
+
+                <!--Header-->
+                <div class="modal-header">
+                    <img src="blocked.png" alt="avatar" class="rounded-circle img-responsive">
+                </div>
+                <!--Body-->
+                <div class="modal-body text-center mb-1">
+
+                    <h5 class="mt-1 mb-2">USER IS BLOCKED.</h5>
+
+                    <div class="md-form ml-0 mr-0">
+                        <hr>
+                        <p style="color:red;">
+                            <b style="font-weight: 800">Dear User</b>,
+                            <br>You were blocked by an admin, You cannot recieve,send or view messages. </p>
+                        <hr>
+                    </div>
+
+                    <div class="text-center mt-4">
+
+                    </div>
+                </div>
+
+            </div>
+            <!--/.Content-->
+
+        </div>
+    </div>
+    <!--Blocked Users above-->
+
+
+
+
+
+    <!--New Admin-->
+    <div class="modal fade" id="newadmin" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog cascading-modal modal-avatar " role="document">
+            <!--Content-->
+            <div class="modal-content">
+
+                <!--Header-->
+                <div class="modal-header">
+                    <img src="admin.png" alt="avatar" class="rounded-circle img-responsive">
+                </div>
+                <!--Body-->
+                <div class="modal-body text-center mb-1">
+
+                    <h4 class="mt-1 name mb-2">Congratulations..!</h4>
+
+                    <div class="md-form ml-0 mr-0">
+                        <hr>
+                        <p class="text text-success text-justify">
+                            <b class="name" style="font-weight: 800">Dear User</b>,
+                            <br>You are now admin of this chat, We hope you will understand the resposibilities of an admin and
+                            will do your job with honesty.</p>
+
+                        <br>
+                        <p class="text-justify">Now You Have Permissions To :
+                            <ol class="text-justify">
+                                <li class="bold">Block User From This Website/Chat</li>
+                                <li class="bold">Delete Messages From Users Who Violate Rules.</li>
+                                <li class="bold">Can See Details Of User Such as Email Etc.</li>
+
+
+                            </ol>
+                        </p>
+                        <p style="font-size:11px" class="text-muted">Please Reload The Page After Clicking "OK". </p>
+                        <hr>
+                    </div>
+
+                    <div class="text-center mt-4">
+                        <button class="btn btn-success" onclick="firebase.database().ref(`CHATROOM/ADMIN/SEEN/${firebase.auth().currentUser.uid}`).set({Seen:'SeenByAdmin'}).then(function(snapshot) { $('#newadmin').modal('hide'); console.log('then run here, Senn ok') });  ">OK </button>
+                    </div>
+                </div>
+
+            </div>
+            <!--/.Content-->
+
+        </div>
+
+
+
+
+
+
+    </div>
+    <!--New Admin Ends above-->
+
+
+
+
+
+    <!--Upload files modal-->
+    <!-- Central Modal Medium Success -->
+    <div class="modal fade" id="picprofile" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-notify modal-success" role="document">
+            <!--Content-->
+            <div class="modal-content">
+                <!--Header-->
+                <div class="modal-header">
+                    <p class="heading lead">UPDATE PROFILE PICTURE</p>
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+
+                    </button>
+                </div>
+
+                <!--Body-->
+                <div class="modal-body">
+
+
+                    <!--File Uplaod belo-->
+                    <center>
+
+                        <div class="text-center">
+                            <br>
+                            <br>
+                            <br>
+
+                            <p style="font-size:10px" class="text-muted">Profile Update Requires Reload,It means this page will be reloaded after uploading the profile
+                                picture.</p>
+
+
+
+                            <div style="cursor:pointer !important" class="dropzone">
+                                <div style="cursor:pointer !important" class="content">
+                                    <figure class="upload" id="uploadimgtwo">
+                                        <img src="upload/upload.svg">
+                                        <figcaption style="z-index: 999; color: black;margin:3px;">Browse Or Drop</figcaption>
+                                    </figure>
+                                    <span class="filename the2ndfilename"></span>
+                                    <form id="lolinputtwo">
+                                        <input style="cursor:pointer !important" id="uploadfilestwo" type="file" class="input">
+                                    </form>
+
+                                </div>
+
+                            </div>
+                            <input type="text" class="uploadtext animated fadeIn" id="percentagetexttwo" value="0%" disabled="disabled">
+                            <progress class="uploadstatus animated fadeIn" id="uploadertwo" value="0" max="100"></progress>
+
+                            <img src="upload/syncing.svg" class="syncing">
+                            <img src="upload/checkmark.svg" class="done">
+
+                        </div>
+
+
+                    </center>
+                    <br>
+                    <br>
+                    <br>
+                    <!--Footer-->
+                    <div class="modal-footer justify-content-center">
+
+                        <a type="button" id="uploadboxclosetwo" class="btn btn-outline-danger waves-effect" data-dismiss="modal">Cancel</a>
+                    </div>
+                </div>
+                <!--/.Content-->
+            </div>
+        </div>
+    </div>
+    <!-- Central Modal Medium Success-->
+
+    <!-- Central Modal Medium Warning -->
+    <div class="modal fade" id="InviteFriend" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-notify modal-warning" role="document">
+            <!--Content-->
+            <div class="modal-content">
+                <!--Header-->
+                <div class="modal-header">
+                    <p class="heading lead"> Invite A Friend To Chat With You </p>
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true" class="white-text">&times;</span>
+                    </button>
+                </div>
+
+                <!--Body-->
+                <div class="modal-body">
+                    <div class="text-center">
+                        <img class="invitefriendimg" src="invitefriend.png">
+                        <p>You can invite your friends to chat with you, Just Copy Your Invitation Link and Share With Your
+                            Friend, And When Your Friends Go To Your Invite Link After Login They Can Simply Chat With You..!
+
+                        </p>
+                        <input type="text" id="invitefriendlink" class="invitefriendlink" readonly="readonly">
+                        <a type="button" onclick="copylink()" id="copylinkbtn" class="btn btn-warning">Copy Invitation Link &nbsp;
+                            <i style="color:white; font-weight:999" class="fa fa-link"></i>
+                        </a>
+                    </div>
+                </div>
+
+                <!--Footer-->
+                <div class="modal-footer justify-content-center">
+
+                    <a type="button" class="btn btn-outline-warning waves-effect" data-dismiss="modal">Close</a>
+                </div>
+            </div>
+            <!--/.Content-->
+        </div>
+    </div>
+    <!-- Central Modal Medium Warning-->
+
+    <!--Upload files modal-->
+    <!-- Central Modal Medium Success -->
+    <div class="modal fade" id="Uploadfiles" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-notify modal-success" role="document">
+            <!--Content-->
+            <div class="modal-content">
+                <!--Header-->
+                <div class="modal-header">
+                    <p class="heading lead">UPLOAD FILES OR IMAGES</p>
+
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+
+                    </button>
+                </div>
+
+                <!--Body-->
+                <div class="modal-body">
+
+
+                    <!--File Uplaod belo-->
+                    <center>
+
+                        <div class="text-center">
+                            <br>
+                            <br>
+                            <br>
+
+
+
+
+                            <div style="cursor:pointer !important" class="dropzone">
+                                <div style="cursor:pointer !important" class="content">
+                                    <figure class="upload" id="uploadimg">
+                                        <img src="upload/upload.svg">
+                                        <figcaption style="z-index: 999; color: black;margin:3px;">Browse Or Drop</figcaption>
+                                    </figure>
+                                    <span class="filename"></span>
+                                    <form id="lolinput">
+                                        <input style="cursor:pointer !important" id="uploadfiles" type="file" class="input">
+                                    </form>
+
+                                </div>
+
+                            </div>
+                            <input type="text" class="uploadtext animated fadeIn" id="percentagetext" value="0%" disabled="disabled">
+                            <progress class="uploadstatus animated fadeIn" id="uploader" value="0" max="100"></progress>
+
+                            <img src="upload/syncing.svg" class="syncing">
+                            <img src="upload/checkmark.svg" class="done">
+
+                        </div>
+
+
+                    </center>
+                    <br>
+                    <br>
+                    <br>
+                    <!--Footer-->
+                    <div class="modal-footer justify-content-center">
+
+                        <a type="button" id="uploadboxclose" class="btn btn-outline-danger waves-effect" data-dismiss="modal">Cancel</a>
+                    </div>
+                </div>
+                <!--/.Content-->
+            </div>
+        </div>
+    </div>
+
+    <!-- Central Modal Medium Success-->
+
+
+
+
+
+
+
+
+
+
+
+
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.0/handlebars.min.js'></script>
+    <script src='https://cdnjs.cloudflare.com/ajax/libs/list.js/1.1.1/list.min.js'></script>
+
+    <script src="https://www.google.com/recaptcha/api.js"></script>
+
+
+    <script src="js/hamburgers.js"></script>
+
+
+
+
+
+
+
+
+    <script>
+        function newhamburger() {
+            var hamburger = document.getElementById("mysideaerrow");
+            var plist = document.getElementById("people-list");
+            hamburger.className = "hamburger hamburger--arrow js-hamburger myarrowbtn newarrowbtn"
+            hamburger.setAttribute("onclick", "oldhamburger()");
+            plist.className = "people-list";
+        }
+
+        function oldhamburger() {
+            var hamburger = document.getElementById("mysideaerrow");
+            var plist = document.getElementById("people-list");
+            hamburger.className = "hamburger hamburger--arrow js-hamburger myarrowbtn"
+            hamburger.setAttribute("onclick", "newhamburger()");
+            plist.className = "people-list listofpeoples";
+
+
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    </script>
+
+    <script src="js/authentication.js"></script>
+
+    <script src="dropdown/dropdown.js"></script>
+
+    <script src="js/main.js"></script>
+    <script src="js/push.js"></script>
+    <script src="js/userdetails.js"></script>
+    <script src="upload/upload.js"></script>
+
+
+    <script src="upload/uploadfiles.js"></script>
+    <script src="js/BigPicture.js"></script>
+</body>
+
+</html>
